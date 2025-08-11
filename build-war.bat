@@ -1,47 +1,35 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: 取 git 版本資訊
-for /f "delims=" %%i in ('git rev-parse --abbrev-ref HEAD') do set GIT_BRANCH=%%i
-for /f "delims=" %%i in ('git rev-parse --short HEAD') do set GIT_COMMIT=%%i
-set VERSION=%GIT_BRANCH%-%GIT_COMMIT%
+echo 當前目錄: %cd%
 
-echo Git version: %VERSION%
+for /f "delims=" %%i in ('git rev-parse --abbrev-ref HEAD') do set "GIT_BRANCH=%%i"
+for /f "delims=" %%i in ('git rev-parse --short HEAD') do set "GIT_COMMIT=%%i"
 
-:: 把版本字串寫入 resource/version.txt
-echo %VERSION% > src\main\resources\version.txt
+set "VERSION=!GIT_BRANCH!-!GIT_COMMIT!"
+echo Git version: !VERSION!
 
-:: 先打包
-mvn clean install -DskipTests
+echo 目錄內容：
+dir target\*.war
+
+set "WAR_FILE=target\demo-0.0.1-SNAPSHOT.war"
+set "NEW_WAR=demo-!VERSION!.war"
+
+if not exist "!WAR_FILE!" (
+    echo 找不到 WAR 檔: !WAR_FILE!
+    exit /b 1
+)
+
+echo 嘗試改名...
+ren "!WAR_FILE!" "!NEW_WAR!"
 if errorlevel 1 (
-    echo Maven build failed!
+    echo 改名失敗！
     exit /b 1
 )
 
-:: 找 war 檔
-set WAR_FILE=
-for %%f in (target\*.war) do (
-    set WAR_FILE=%%f
-    goto got_war
-)
+echo 改名成功！
 
-:got_war
-if not defined WAR_FILE (
-    echo WAR file not found.
-    exit /b 1
-)
+echo 改名後目錄內容：
+dir target\*.war
 
-set NEW_WAR=target\demo-%VERSION%.war
-
-echo Ready to rename:
-echo Source: %WAR_FILE%
-echo Target: %NEW_WAR%
-
-move "%WAR_FILE%" "%NEW_WAR%"
-if errorlevel 1 (
-    echo Failed to rename WAR file.
-    exit /b 1
-)
-
-echo Renamed WAR file to %NEW_WAR%
 endlocal
