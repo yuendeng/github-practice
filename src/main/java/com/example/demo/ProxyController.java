@@ -38,7 +38,7 @@ public class ProxyController {
 		// 拿到原始 URL
 		String originalUri = request.getRequestURI(); // /proxy/api/xxx
 		String proxyPath = originalUri.replaceFirst("/proxy", ""); // /api/xxx
-//		String targetUrl = "http://172.44.87.87:8081/api/" + proxyPath;
+		//String targetUrl = "http://172.44.87.87:8081/api/" + proxyPath;
 		String targetUrl = "http://www.crcind.com/" + proxyPath;
 
 		if (request.getQueryString() != null) {
