@@ -1,3 +1,4 @@
+::原版
 @echo off
 setlocal enabledelayedexpansion
 
